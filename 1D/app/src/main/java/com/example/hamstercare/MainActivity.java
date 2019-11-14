@@ -38,12 +38,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         createFoodNotificationChannel();
+        createWaterNotificationChannel();
 
 
         //basicReadWrite();
         FirebaseDatabase database = FirebaseDatabase.getInstance();
 
         DatabaseReference foodLow = database.getReference("foodLow");
+        DatabaseReference waterLow = database.getReference("waterLow");
         //foodLow.setValue("false");
         // [END write_message]
 
@@ -54,24 +56,37 @@ public class MainActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // This method is called once with the initial value and again
                 // whenever data at this location is updated.
-                String value = dataSnapshot.getValue(String.class);
-                if (value.equals("true")){
+                String foodValue = dataSnapshot.getValue(String.class);
+                if (foodValue.equals("true")){
                     sendFoodNotification();
                 }
-                Log.i("AngryMickey", "Value is: " + value);
+                Log.i("AngryMickey", "foodValue is: " + foodValue);
             }
-
             @Override
             public void onCancelled(DatabaseError error) {
                 // Failed to read value
                 Log.i("AngryMickey", "Failed to read value.", error.toException());
             }
+        });
 
+        waterLow.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // This method is called once with the initial value and again
+                // whenever data at this location is updated.
+                String waterValue = dataSnapshot.getValue(String.class);
+                if (waterValue.equals("true")){
+                    sendWaterNotification();
+                }
+                Log.i("AngryMickey", "waterValue is: " + waterValue);
+            }
+            @Override
+            public void onCancelled(DatabaseError error) {
+                // Failed to read value
+                Log.i("AngryMickey", "Failed to read value.", error.toException());
+            }
         });
     }
-
-
-
 
 
 
@@ -79,6 +94,11 @@ public class MainActivity extends AppCompatActivity {
     public void sendFoodNotification() {
         NotificationCompat.Builder notifyBuilder = getFoodNotificationBuilder();
         mFoodNotifyManager.notify(FOOD_NOTIFICATION_ID, notifyBuilder.build());
+    }
+
+    public void sendWaterNotification() {
+        NotificationCompat.Builder notifyBuilder = getWaterNotificationBuilder();
+        mWaterNotifyManager.notify(WATER_NOTIFICATION_ID, notifyBuilder.build());
     }
 
     public void createFoodNotificationChannel() {
@@ -126,6 +146,24 @@ public class MainActivity extends AppCompatActivity {
         NotificationCompat.Builder notifyBuilder = new NotificationCompat.Builder(this, PRIMARY_FOOD_CHANNEL_ID)
                 .setContentTitle("Food is Low")
                 .setContentText("Food is low, please top up!")
+                .setSmallIcon(R.drawable.ic_android)
+                .setContentIntent(notificationPendingIntent)
+                .setAutoCancel(true)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setDefaults(NotificationCompat.DEFAULT_ALL);
+        return notifyBuilder;
+
+    }
+
+    private NotificationCompat.Builder getWaterNotificationBuilder(){
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+
+        PendingIntent notificationPendingIntent = PendingIntent.getActivity(this,
+                WATER_NOTIFICATION_ID, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        NotificationCompat.Builder notifyBuilder = new NotificationCompat.Builder(this, PRIMARY_FOOD_CHANNEL_ID)
+                .setContentTitle("Water is Low")
+                .setContentText("Water is low, please top up!")
                 .setSmallIcon(R.drawable.ic_android)
                 .setContentIntent(notificationPendingIntent)
                 .setAutoCancel(true)
