@@ -10,6 +10,8 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -18,6 +20,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 public class MainActivity extends AppCompatActivity {
+
+    Button topUpFoodButton;
+    Button topUpWaterButton;
+
+
 
     //In MainActivity, create a constant for the notification channel ID.
     // Every notification channel must be associated with an ID that is unique within your package.
@@ -40,12 +47,16 @@ public class MainActivity extends AppCompatActivity {
         createFoodNotificationChannel();
         createWaterNotificationChannel();
 
+        topUpFoodButton = findViewById(R.id.topUpFoodButton);
+        topUpWaterButton = findViewById(R.id.topUpWaterButton);
 
         //basicReadWrite();
         FirebaseDatabase database = FirebaseDatabase.getInstance();
 
         DatabaseReference foodLow = database.getReference("foodLow");
         DatabaseReference waterLow = database.getReference("waterLow");
+        final DatabaseReference topUpWater = database.getReference("topUpWater");
+        final DatabaseReference topUpFood = database.getReference("topUpFood");
         //foodLow.setValue("false");
         // [END write_message]
 
@@ -86,6 +97,21 @@ public class MainActivity extends AppCompatActivity {
                 Log.i("AngryMickey", "Failed to read value.", error.toException());
             }
         });
+
+        topUpFoodButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                topUpFood.setValue("true");
+                Log.i("jinghan", "Food top up button is clicked");
+            }
+        });
+        topUpWaterButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                topUpWater.setValue("true");
+                Log.i("jinghan", "Water top up button is clicked");
+            }
+        });
     }
 
 
@@ -95,11 +121,11 @@ public class MainActivity extends AppCompatActivity {
         NotificationCompat.Builder notifyBuilder = getFoodNotificationBuilder();
         mFoodNotifyManager.notify(FOOD_NOTIFICATION_ID, notifyBuilder.build());
     }
-
     public void sendWaterNotification() {
         NotificationCompat.Builder notifyBuilder = getWaterNotificationBuilder();
         mWaterNotifyManager.notify(WATER_NOTIFICATION_ID, notifyBuilder.build());
     }
+
 
     public void createFoodNotificationChannel() {
         mFoodNotifyManager = (NotificationManager)
@@ -117,7 +143,6 @@ public class MainActivity extends AppCompatActivity {
             mFoodNotifyManager.createNotificationChannel(notificationChannel);
         }
     }
-
     public void createWaterNotificationChannel()
     {
         mWaterNotifyManager = (NotificationManager)
@@ -154,7 +179,6 @@ public class MainActivity extends AppCompatActivity {
         return notifyBuilder;
 
     }
-
     private NotificationCompat.Builder getWaterNotificationBuilder(){
         Intent notificationIntent = new Intent(this, MainActivity.class);
 
