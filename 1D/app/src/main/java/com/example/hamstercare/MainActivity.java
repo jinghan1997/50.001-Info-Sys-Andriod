@@ -6,12 +6,16 @@ import androidx.core.app.NotificationCompat;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -23,6 +27,9 @@ public class MainActivity extends AppCompatActivity {
 
     Button topUpFoodButton;
     Button topUpWaterButton;
+    TextView foodLevel;
+    TextView waterLevel;
+
 
 
 
@@ -49,12 +56,14 @@ public class MainActivity extends AppCompatActivity {
 
         topUpFoodButton = findViewById(R.id.topUpFoodButton);
         topUpWaterButton = findViewById(R.id.topUpWaterButton);
+        foodLevel = findViewById(R.id.foodLevel);
+        waterLevel = findViewById(R.id.waterLevel);
 
         //basicReadWrite();
         FirebaseDatabase database = FirebaseDatabase.getInstance();
 
-        DatabaseReference foodLow = database.getReference("foodLow");
-        DatabaseReference waterLow = database.getReference("waterLow");
+        final DatabaseReference foodLow = database.getReference("foodLow");
+        final DatabaseReference waterLow = database.getReference("waterLow");
         final DatabaseReference topUpWater = database.getReference("topUpWater");
         final DatabaseReference topUpFood = database.getReference("topUpFood");
         //foodLow.setValue("false");
@@ -69,9 +78,14 @@ public class MainActivity extends AppCompatActivity {
                 // whenever data at this location is updated.
                 String lowFoodValue = dataSnapshot.getValue(String.class);
                 if (lowFoodValue.equals("true")){
+                    //for UI, let user see the food level status
+                    foodLevel.setText("Current food level: Insufficient");
                     sendFoodNotification();
                 } else if (lowFoodValue.equals("false")){
+                    //cancel notification
                     mFoodNotifyManager.cancel(FOOD_NOTIFICATION_ID);
+                    //for UI, let user see the food level status
+                    foodLevel.setText("Current food level: Sufficient");
                 }
                 Log.i("jinghan", "lowFoodValue is: " + lowFoodValue);
             }
@@ -89,9 +103,14 @@ public class MainActivity extends AppCompatActivity {
                 // whenever data at this location is updated.
                 String LowWaterValue = dataSnapshot.getValue(String.class);
                 if (LowWaterValue.equals("true")){
+                    //for UI, let user see the water level status
+                    waterLevel.setText("Current water level: Insufficient");
                     sendWaterNotification();
                 } else if (LowWaterValue.equals("false")){
+                    //cancel notification
                     mWaterNotifyManager.cancel(WATER_NOTIFICATION_ID);
+                    //for UI, let user see the water level status
+                    waterLevel.setText("Current water level: Sufficient");
                 }
                 Log.i("jinghan", "LowWaterValue is: " + LowWaterValue);
             }
@@ -105,15 +124,21 @@ public class MainActivity extends AppCompatActivity {
         topUpFoodButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                topUpFood.setValue("true");
                 Log.i("jinghan", "Food top up button is clicked");
+                topUpFood.setValue("true");
             }
         });
         topUpWaterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //Log.i("jinghan", "Water top up button is clicked" + waterLow.);
+                /*if (LowWaterValue.getKey().equals("false")){
+                    Log.i("jinghan", "water still full, why top up" + waterLow.getKey());
+                } else {
+                    topUpWater.setValue("true");
+                }*/
                 topUpWater.setValue("true");
-                Log.i("jinghan", "Water top up button is clicked");
+
             }
         });
     }
@@ -199,6 +224,19 @@ public class MainActivity extends AppCompatActivity {
                 .setDefaults(NotificationCompat.DEFAULT_ALL);
         return notifyBuilder;
 
+    }
+
+
+    public class NotificationReceiver extends BroadcastReceiver {
+
+        public NotificationReceiver() {
+            //empty constructor
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Update the notification
+        }
     }
 
 }
