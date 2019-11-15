@@ -105,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
                 if (LowWaterValue.equals("true")){
                     //for UI, let user see the water level status
                     waterLevel.setText("Current water level: Insufficient");
+                    //Log.i ("jinghan", waterLevel.getText().toString());
                     sendWaterNotification();
                 } else if (LowWaterValue.equals("false")){
                     //cancel notification
@@ -125,19 +126,24 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Log.i("jinghan", "Food top up button is clicked");
-                topUpFood.setValue("true");
+
+                if (foodLevel.getText().toString().equals("Current food level: Sufficient")){
+                    Toast.makeText(MainActivity.this, "Food level is sufficient, why top up?", Toast.LENGTH_LONG).show();
+                } else {
+                    topUpWater.setValue("true");
+                }
             }
         });
         topUpWaterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Log.i("jinghan", "Water top up button is clicked" + waterLow.);
-                /*if (LowWaterValue.getKey().equals("false")){
-                    Log.i("jinghan", "water still full, why top up" + waterLow.getKey());
+                Log.i("jinghan", "Water top up button is clicked");
+
+                if (waterLevel.getText().toString().equals("Current water level: Sufficient")){
+                    Toast.makeText(MainActivity.this, "Water level is sufficient, why top up?", Toast.LENGTH_LONG).show();
                 } else {
                     topUpWater.setValue("true");
-                }*/
-                topUpWater.setValue("true");
+                }
 
             }
         });
