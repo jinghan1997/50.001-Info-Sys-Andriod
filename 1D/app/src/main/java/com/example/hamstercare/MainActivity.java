@@ -67,16 +67,18 @@ public class MainActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // This method is called once with the initial value and again
                 // whenever data at this location is updated.
-                String foodValue = dataSnapshot.getValue(String.class);
-                if (foodValue.equals("true")){
+                String lowFoodValue = dataSnapshot.getValue(String.class);
+                if (lowFoodValue.equals("true")){
                     sendFoodNotification();
+                } else if (lowFoodValue.equals("false")){
+                    mFoodNotifyManager.cancel(FOOD_NOTIFICATION_ID);
                 }
-                Log.i("AngryMickey", "foodValue is: " + foodValue);
+                Log.i("jinghan", "lowFoodValue is: " + lowFoodValue);
             }
             @Override
             public void onCancelled(DatabaseError error) {
                 // Failed to read value
-                Log.i("AngryMickey", "Failed to read value.", error.toException());
+                Log.i("jinghan", "Failed to read value.", error.toException());
             }
         });
 
@@ -85,16 +87,18 @@ public class MainActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // This method is called once with the initial value and again
                 // whenever data at this location is updated.
-                String waterValue = dataSnapshot.getValue(String.class);
-                if (waterValue.equals("true")){
+                String LowWaterValue = dataSnapshot.getValue(String.class);
+                if (LowWaterValue.equals("true")){
                     sendWaterNotification();
+                } else if (LowWaterValue.equals("false")){
+                    mWaterNotifyManager.cancel(WATER_NOTIFICATION_ID);
                 }
-                Log.i("AngryMickey", "waterValue is: " + waterValue);
+                Log.i("jinghan", "LowWaterValue is: " + LowWaterValue);
             }
             @Override
             public void onCancelled(DatabaseError error) {
                 // Failed to read value
-                Log.i("AngryMickey", "Failed to read value.", error.toException());
+                Log.i("jinghan", "Failed to read value.", error.toException());
             }
         });
 
@@ -196,4 +200,5 @@ public class MainActivity extends AppCompatActivity {
         return notifyBuilder;
 
     }
+
 }
