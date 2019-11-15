@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     Button topUpWaterButton;
     TextView foodLevel;
     TextView waterLevel;
+    //ImageView hamsterImage;
 
 
 
@@ -58,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
         topUpWaterButton = findViewById(R.id.topUpWaterButton);
         foodLevel = findViewById(R.id.foodLevel);
         waterLevel = findViewById(R.id.waterLevel);
+        //hamsterImage = findViewById(R.id.hamster);
 
         //basicReadWrite();
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -128,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.i("jinghan", "Food top up button is clicked");
 
                 if (foodLevel.getText().toString().equals("Current food level: Sufficient")){
+                    //to remind users and prevent overflowing
                     Toast.makeText(MainActivity.this, "Food level is sufficient, why top up?", Toast.LENGTH_LONG).show();
                 } else {
                     topUpWater.setValue("true");
@@ -140,6 +144,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.i("jinghan", "Water top up button is clicked");
 
                 if (waterLevel.getText().toString().equals("Current water level: Sufficient")){
+                    //to remind users and prevent overflowing
                     Toast.makeText(MainActivity.this, "Water level is sufficient, why top up?", Toast.LENGTH_LONG).show();
                 } else {
                     topUpWater.setValue("true");
