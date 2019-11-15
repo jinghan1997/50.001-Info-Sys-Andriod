@@ -134,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
                     //to remind users and prevent overflowing
                     Toast.makeText(MainActivity.this, "Food level is sufficient, why top up?", Toast.LENGTH_LONG).show();
                 } else {
-                    topUpWater.setValue("true");
+                    topUpFood.setValue("true");
                 }
             }
         });
