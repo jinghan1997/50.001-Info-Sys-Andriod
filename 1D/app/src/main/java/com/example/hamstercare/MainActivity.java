@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
                 if (lowFoodValue.equals("true")){
                     //for UI, let user see the food level status
                     foodLevel.setText("Current food level: Insufficient");
-                    sendNotification(mFoodNotifyManager, FOOD_NOTIFICATION_ID);
+                    sendNotification(FOOD_NOTIFICATION_ID);
                 } else if (lowFoodValue.equals("false")){
                     //cancel notification
                     mFoodNotifyManager.cancel(FOOD_NOTIFICATION_ID);
@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
                     //for UI, let user see the water level status
                     waterLevel.setText("Current water level: Insufficient");
                     //Log.i ("jinghan", waterLevel.getText().toString());
-                    sendNotification(mWaterNotifyManager, WATER_NOTIFICATION_ID);
+                    sendNotification(WATER_NOTIFICATION_ID);
                 } else if (LowWaterValue.equals("false")){
                     //cancel notification
                     mWaterNotifyManager.cancel(WATER_NOTIFICATION_ID);
@@ -194,9 +194,14 @@ public class MainActivity extends AppCompatActivity {
 
 
     //Create a method stub for the sendNotification() method:
-    private void sendNotification(NotificationManager notificationManager, int NOTIFICATION_ID) {
-        NotificationCompat.Builder notifyBuilder = getWaterNotificationBuilder();
-        notificationManager.notify(NOTIFICATION_ID, notifyBuilder.build());
+    private void sendNotification(int NOTIFICATION_ID) {
+        if (NOTIFICATION_ID == WATER_NOTIFICATION_ID) {
+            NotificationCompat.Builder notifyBuilder = getWaterNotificationBuilder();
+            mWaterNotifyManager.notify(NOTIFICATION_ID, notifyBuilder.build());
+        } else if (NOTIFICATION_ID == FOOD_NOTIFICATION_ID) {
+            NotificationCompat.Builder notifyBuilder = getFoodNotificationBuilder();
+            mFoodNotifyManager.notify(NOTIFICATION_ID, notifyBuilder.build());
+        }
     }
 
 
