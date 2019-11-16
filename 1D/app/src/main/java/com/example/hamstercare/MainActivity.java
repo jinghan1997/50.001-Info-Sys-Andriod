@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
 
     Button topUpFoodButton;
     Button topUpWaterButton;
+    Button autoTopUpButton;
     TextView foodLevel;
     TextView waterLevel;
     TextView prevWaterTopUpDateTimeText;
@@ -60,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
         createWaterNotificationChannel();
 
         //find all the textviews and buttons
+        autoTopUpButton = findViewById(R.id.autoTopUp);
         topUpFoodButton = findViewById(R.id.topUpFoodButton);
         topUpWaterButton = findViewById(R.id.topUpWaterButton);
         foodLevel = findViewById(R.id.foodLevel);
@@ -70,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
+        final DatabaseReference autoTopUp = database.getReference("autoTopUp");
         final DatabaseReference foodLow = database.getReference("foodLow");
         final DatabaseReference waterLow = database.getReference("waterLow");
         final DatabaseReference topUpWater = database.getReference("topUpWater");
@@ -164,6 +167,21 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // To read the value of autoTopUp variable in firebase
+        autoTopUp.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // This method is called once with the initial value and again
+                // whenever data at this location is updated.
+                autoTopUpButton.setText(dataSnapshot.getValue(String.class));
+            }
+            @Override
+            public void onCancelled(DatabaseError error) {
+                // Failed to read value
+                Log.i("jinghan", "Failed to read value.", error.toException());
+            }
+        });
+
         //press buttons
         topUpFoodButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -186,6 +204,18 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     topUpWater.setValue("true");
                     setNewDateTime(prevWaterTopUpDateTimeText, prevWaterTopUpDateTime);
+                }
+            }
+        });
+        autoTopUpButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (autoTopUpButton.getText().toString().equals("Auto top Up is On, tap to switch is Off")){
+                    autoTopUpButton.setText("Auto top Up is Off, tap to switch is On");
+                    autoTopUp.setValue("Auto top Up is Off, tap to switch is On");
+                } else {
+                    autoTopUpButton.setText("Auto top Up is On, tap to switch is Off");
+                    autoTopUp.setValue("Auto top Up is On, tap to switch is Off");
                 }
             }
         });
