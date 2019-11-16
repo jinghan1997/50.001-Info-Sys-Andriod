@@ -6,15 +6,12 @@ import androidx.core.app.NotificationCompat;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,7 +38,6 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-
     //In MainActivity, create a constant for the notification channel ID.
     // Every notification channel must be associated with an ID that is unique within your package.
     // You use this channel ID later, to post your notifications.
@@ -63,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
         createFoodNotificationChannel();
         createWaterNotificationChannel();
 
+        //find all the textviews and buttons
         topUpFoodButton = findViewById(R.id.topUpFoodButton);
         topUpWaterButton = findViewById(R.id.topUpWaterButton);
         foodLevel = findViewById(R.id.foodLevel);
@@ -71,9 +68,8 @@ public class MainActivity extends AppCompatActivity {
         prevFoodTopUpDateTimeText = findViewById(R.id.prevFoodTopUpDateTime);
         //hamsterImage = findViewById(R.id.hamster);
 
-        //basicReadWrite();
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
 
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
         final DatabaseReference foodLow = database.getReference("foodLow");
         final DatabaseReference waterLow = database.getReference("waterLow");
         final DatabaseReference topUpWater = database.getReference("topUpWater");
@@ -81,11 +77,9 @@ public class MainActivity extends AppCompatActivity {
         final DatabaseReference prevFoodTopUpDateTime = database.getReference("prevFoodTopUpDateTime");
         final DatabaseReference prevWaterTopUpDateTime = database.getReference("prevWaterTopUpDateTime");
         //foodLow.setValue("false");
-        // [END write_message]
 
 
-        // [START read_message]
-        // Read from the database
+        // To read the value of foodLow variable in firebase
         foodLow.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -95,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
                 if (lowFoodValue.equals("true")){
                     //for UI, let user see the food level status
                     foodLevel.setText("Current food level: Insufficient");
-                    sendFoodNotification();
+                    sendNotification(mFoodNotifyManager, FOOD_NOTIFICATION_ID);
                 } else if (lowFoodValue.equals("false")){
                     //cancel notification
                     mFoodNotifyManager.cancel(FOOD_NOTIFICATION_ID);
@@ -111,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // To read the value of waterLow variable in firebase
         waterLow.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -121,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
                     //for UI, let user see the water level status
                     waterLevel.setText("Current water level: Insufficient");
                     //Log.i ("jinghan", waterLevel.getText().toString());
-                    sendWaterNotification();
+                    sendNotification(mWaterNotifyManager, WATER_NOTIFICATION_ID);
                 } else if (LowWaterValue.equals("false")){
                     //cancel notification
                     mWaterNotifyManager.cancel(WATER_NOTIFICATION_ID);
@@ -137,8 +132,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // [START read_message]
-        // Read from the database
+        // To read the value of prevFoodTopUpDateTime variable in firebase
         prevFoodTopUpDateTime.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -154,8 +148,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // [START read_message]
-        // Read from the database
+        // To read the value of prevWaterTopUpDateTime variable in firebase
         prevWaterTopUpDateTime.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -171,6 +164,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //press buttons
         topUpFoodButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -179,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this, "Food level is sufficient, why top up?", Toast.LENGTH_LONG).show();
                 } else {
                     topUpFood.setValue("true");
-                    setDateTimeForTextView(prevFoodTopUpDateTimeText, prevFoodTopUpDateTime);
+                    setNewDateTime(prevFoodTopUpDateTimeText, prevFoodTopUpDateTime);
                 }
             }
         });
@@ -191,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this, "Water level is sufficient, why top up?", Toast.LENGTH_LONG).show();
                 } else {
                     topUpWater.setValue("true");
-                    setDateTimeForTextView(prevWaterTopUpDateTimeText, prevWaterTopUpDateTime);
+                    setNewDateTime(prevWaterTopUpDateTimeText, prevWaterTopUpDateTime);
                 }
             }
         });
@@ -200,17 +194,13 @@ public class MainActivity extends AppCompatActivity {
 
 
     //Create a method stub for the sendNotification() method:
-    public void sendFoodNotification() {
-        NotificationCompat.Builder notifyBuilder = getFoodNotificationBuilder();
-        mFoodNotifyManager.notify(FOOD_NOTIFICATION_ID, notifyBuilder.build());
-    }
-    public void sendWaterNotification() {
+    private void sendNotification(NotificationManager notificationManager, int NOTIFICATION_ID) {
         NotificationCompat.Builder notifyBuilder = getWaterNotificationBuilder();
-        mWaterNotifyManager.notify(WATER_NOTIFICATION_ID, notifyBuilder.build());
+        notificationManager.notify(NOTIFICATION_ID, notifyBuilder.build());
     }
 
 
-    public void createFoodNotificationChannel() {
+    private void createFoodNotificationChannel() {
         mFoodNotifyManager = (NotificationManager)
                 getSystemService(NOTIFICATION_SERVICE);
         if (android.os.Build.VERSION.SDK_INT >=
@@ -226,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
             mFoodNotifyManager.createNotificationChannel(notificationChannel);
         }
     }
-    public void createWaterNotificationChannel()
+    private void createWaterNotificationChannel()
     {
         mWaterNotifyManager = (NotificationManager)
                 getSystemService(NOTIFICATION_SERVICE);
@@ -243,6 +233,7 @@ public class MainActivity extends AppCompatActivity {
             mWaterNotifyManager.createNotificationChannel(notificationChannel);
         }
     }
+
 
 
     private NotificationCompat.Builder getFoodNotificationBuilder(){
@@ -280,17 +271,17 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void setDateTimeForTextView(TextView textView, DatabaseReference referenceToSet){
+    private void setNewDateTime(TextView textView, DatabaseReference referenceToSet){
+        //to change the textview for new date and time and update firebase
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.ENGLISH);
         sdf.setTimeZone(TimeZone.getTimeZone("Asia/Singapore"));
         String withMilliSec = sdf.format(Calendar.getInstance().getTime());
         String[] toRemoveMillSec = withMilliSec.split("");
-        String withoutMilliSec = "";
+        String prevTopUp = "Topped up at: ";
         for (int i = 0; i < toRemoveMillSec.length - 4; i++) {
-            withoutMilliSec += toRemoveMillSec[i];
+            prevTopUp += toRemoveMillSec[i];
         }
-        String prevTopUp = "Topped up at: " + withoutMilliSec;
         referenceToSet.setValue(prevTopUp);
         textView.setText(prevTopUp);
     }
