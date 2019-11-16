@@ -21,14 +21,26 @@
     <ImageView
         android:id="@+id/hamster"
         android:src="@drawable/hamster"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
+        android:layout_width="190dp"
+        android:layout_height="190dp"
         />
 
     <TextView
         android:text="This is the button to top up the hamster's food bowl when food is running low."
         android:textSize="20dp"
         android:textColor="@android:color/holo_red_dark"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/prevFoodTopUpDateTime"
+        android:text=""
+        android:textSize="20dp"
+        android:textColor="@android:color/holo_green_dark"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -70,6 +82,18 @@
         android:text="This is the button to top up the hamster's water dispenser when water is running out."
         android:textSize="20dp"
         android:textColor="@android:color/holo_red_dark"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/prevWaterTopUpDateTime"
+        android:text=""
+        android:textSize="20dp"
+        android:textColor="@android:color/holo_green_dark"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"

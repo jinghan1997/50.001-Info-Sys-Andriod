@@ -24,12 +24,19 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
+import java.util.TimeZone;
+
 public class MainActivity extends AppCompatActivity {
 
     Button topUpFoodButton;
     Button topUpWaterButton;
     TextView foodLevel;
     TextView waterLevel;
+    TextView prevWaterTopUpDateTimeText;
+    TextView prevFoodTopUpDateTimeText;
     //ImageView hamsterImage;
 
 
@@ -60,6 +67,8 @@ public class MainActivity extends AppCompatActivity {
         topUpWaterButton = findViewById(R.id.topUpWaterButton);
         foodLevel = findViewById(R.id.foodLevel);
         waterLevel = findViewById(R.id.waterLevel);
+        prevWaterTopUpDateTimeText = findViewById(R.id.prevWaterTopUpDateTime);
+        prevFoodTopUpDateTimeText = findViewById(R.id.prevFoodTopUpDateTime);
         //hamsterImage = findViewById(R.id.hamster);
 
         //basicReadWrite();
@@ -69,8 +78,11 @@ public class MainActivity extends AppCompatActivity {
         final DatabaseReference waterLow = database.getReference("waterLow");
         final DatabaseReference topUpWater = database.getReference("topUpWater");
         final DatabaseReference topUpFood = database.getReference("topUpFood");
+        final DatabaseReference prevFoodTopUpDateTime = database.getReference("prevFoodTopUpDateTime");
+        final DatabaseReference prevWaterTopUpDateTime = database.getReference("prevWaterTopUpDateTime");
         //foodLow.setValue("false");
         // [END write_message]
+
 
         // [START read_message]
         // Read from the database
@@ -125,31 +137,62 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // [START read_message]
+        // Read from the database
+        prevFoodTopUpDateTime.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // This method is called once with the initial value and again
+                // whenever data at this location is updated.
+                String lowFoodValue = dataSnapshot.getValue(String.class);
+                prevFoodTopUpDateTimeText.setText(lowFoodValue);
+            }
+            @Override
+            public void onCancelled(DatabaseError error) {
+                // Failed to read value
+                Log.i("jinghan", "Failed to read value.", error.toException());
+            }
+        });
+
+        // [START read_message]
+        // Read from the database
+        prevWaterTopUpDateTime.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // This method is called once with the initial value and again
+                // whenever data at this location is updated.
+                String lowWaterValue = dataSnapshot.getValue(String.class);
+                prevWaterTopUpDateTimeText.setText(lowWaterValue);
+            }
+            @Override
+            public void onCancelled(DatabaseError error) {
+                // Failed to read value
+                Log.i("jinghan", "Failed to read value.", error.toException());
+            }
+        });
+
         topUpFoodButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i("jinghan", "Food top up button is clicked");
-
                 if (foodLevel.getText().toString().equals("Current food level: Sufficient")){
                     //to remind users and prevent overflowing
                     Toast.makeText(MainActivity.this, "Food level is sufficient, why top up?", Toast.LENGTH_LONG).show();
                 } else {
                     topUpFood.setValue("true");
+                    setDateTimeForTextView(prevFoodTopUpDateTimeText, prevFoodTopUpDateTime);
                 }
             }
         });
         topUpWaterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i("jinghan", "Water top up button is clicked");
-
                 if (waterLevel.getText().toString().equals("Current water level: Sufficient")){
                     //to remind users and prevent overflowing
                     Toast.makeText(MainActivity.this, "Water level is sufficient, why top up?", Toast.LENGTH_LONG).show();
                 } else {
                     topUpWater.setValue("true");
+                    setDateTimeForTextView(prevWaterTopUpDateTimeText, prevWaterTopUpDateTime);
                 }
-
             }
         });
     }
@@ -237,17 +280,19 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void setDateTimeForTextView(TextView textView, DatabaseReference referenceToSet){
 
-    public class NotificationReceiver extends BroadcastReceiver {
-
-        public NotificationReceiver() {
-            //empty constructor
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.ENGLISH);
+        sdf.setTimeZone(TimeZone.getTimeZone("Asia/Singapore"));
+        String withMilliSec = sdf.format(Calendar.getInstance().getTime());
+        String[] toRemoveMillSec = withMilliSec.split("");
+        String withoutMilliSec = "";
+        for (int i = 0; i < toRemoveMillSec.length - 4; i++) {
+            withoutMilliSec += toRemoveMillSec[i];
         }
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            // Update the notification
-        }
+        String prevTopUp = "Topped up at: " + withoutMilliSec;
+        referenceToSet.setValue(prevTopUp);
+        textView.setText(prevTopUp);
     }
 
 }
