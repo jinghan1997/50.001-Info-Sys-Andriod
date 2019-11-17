@@ -30,7 +30,6 @@ public class MainActivity extends AppCompatActivity {
 
     Button topUpFoodButton;
     Button topUpWaterButton;
-    Button autoTopUpButton;
     TextView foodLevel;
     TextView waterLevel;
     TextView prevWaterTopUpDateTimeText;
@@ -61,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
         createWaterNotificationChannel();
 
         //find all the textviews and buttons
-        autoTopUpButton = findViewById(R.id.autoTopUp);
         topUpFoodButton = findViewById(R.id.topUpFoodButton);
         topUpWaterButton = findViewById(R.id.topUpWaterButton);
         foodLevel = findViewById(R.id.foodLevel);
@@ -72,7 +70,6 @@ public class MainActivity extends AppCompatActivity {
 
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        final DatabaseReference autoTopUp = database.getReference("autoTopUp");
         final DatabaseReference foodLow = database.getReference("foodLow");
         final DatabaseReference waterLow = database.getReference("waterLow");
         final DatabaseReference topUpWater = database.getReference("topUpWater");
@@ -167,21 +164,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // To read the value of autoTopUp variable in firebase
-        autoTopUp.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
-                autoTopUpButton.setText(dataSnapshot.getValue(String.class));
-            }
-            @Override
-            public void onCancelled(DatabaseError error) {
-                // Failed to read value
-                Log.i("jinghan", "Failed to read value.", error.toException());
-            }
-        });
-
         //press buttons
         topUpFoodButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -207,20 +189,8 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-        autoTopUpButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (autoTopUpButton.getText().toString().equals("Auto top Up is On, tap to switch is Off")){
-                    autoTopUpButton.setText("Auto top Up is Off, tap to switch is On");
-                    autoTopUp.setValue("Auto top Up is Off, tap to switch is On");
-                } else {
-                    autoTopUpButton.setText("Auto top Up is On, tap to switch is Off");
-                    autoTopUp.setValue("Auto top Up is On, tap to switch is Off");
-                }
-            }
-        });
     }
-
+    //end of onCreate
 
 
     //Create a method stub for the sendNotification() method:
@@ -233,7 +203,6 @@ public class MainActivity extends AppCompatActivity {
             mFoodNotifyManager.notify(NOTIFICATION_ID, notifyBuilder.build());
         }
     }
-
 
     private void createFoodNotificationChannel() {
         mFoodNotifyManager = (NotificationManager)
@@ -308,17 +277,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void setNewDateTime(TextView textView, DatabaseReference referenceToSet){
         //to change the textview for new date and time and update firebase
-
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.ENGLISH);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
         sdf.setTimeZone(TimeZone.getTimeZone("Asia/Singapore"));
-        String withMilliSec = sdf.format(Calendar.getInstance().getTime());
-        String[] toRemoveMillSec = withMilliSec.split("");
-        String prevTopUp = "Topped up at: ";
-        for (int i = 0; i < toRemoveMillSec.length - 4; i++) {
-            prevTopUp += toRemoveMillSec[i];
-        }
+        String prevTopUp = "Topped up at: " + sdf.format(Calendar.getInstance().getTime());
         referenceToSet.setValue(prevTopUp);
         textView.setText(prevTopUp);
     }
+
+
 
 }
