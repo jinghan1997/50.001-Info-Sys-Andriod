@@ -56,8 +56,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        createFoodNotificationChannel();
-        createWaterNotificationChannel();
+        createNotificationChannel(PRIMARY_FOOD_CHANNEL_ID);
+        createNotificationChannel(PRIMARY_WATER_CHANNEL_ID);
 
         //find all the textviews and buttons
         topUpFoodButton = findViewById(R.id.topUpFoodButton);
@@ -204,41 +204,29 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void createFoodNotificationChannel() {
-        mFoodNotifyManager = (NotificationManager)
-                getSystemService(NOTIFICATION_SERVICE);
-        if (android.os.Build.VERSION.SDK_INT >=
-                android.os.Build.VERSION_CODES.O) {
-            // Create a NotificationChannel
-            NotificationChannel notificationChannel = new NotificationChannel(PRIMARY_FOOD_CHANNEL_ID,
-                    "Mascot Notification", NotificationManager
-                    .IMPORTANCE_HIGH);
-            notificationChannel.enableLights(true);
-            notificationChannel.setLightColor(Color.RED);
-            notificationChannel.enableVibration(true);
-            notificationChannel.setDescription("Notification from Mascot");
-            mFoodNotifyManager.createNotificationChannel(notificationChannel);
-        }
-    }
-    private void createWaterNotificationChannel()
+    private void createNotificationChannel(String PRIMARY_CHANNEL_ID)
     {
-        mWaterNotifyManager = (NotificationManager)
-                getSystemService(NOTIFICATION_SERVICE);
-        if (android.os.Build.VERSION.SDK_INT >=
-                android.os.Build.VERSION_CODES.O) {
+        if (PRIMARY_CHANNEL_ID.equals(PRIMARY_WATER_CHANNEL_ID)) {
+            mWaterNotifyManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+        } else {
+            mFoodNotifyManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+        }
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             // Create a NotificationChannel
-            NotificationChannel notificationChannel = new NotificationChannel(PRIMARY_WATER_CHANNEL_ID,
+            NotificationChannel notificationChannel = new NotificationChannel(PRIMARY_CHANNEL_ID,
                     "Mascot Notification", NotificationManager
                     .IMPORTANCE_HIGH);
             notificationChannel.enableLights(true);
             notificationChannel.setLightColor(Color.RED);
             notificationChannel.enableVibration(true);
             notificationChannel.setDescription("Notification from Mascot");
-            mWaterNotifyManager.createNotificationChannel(notificationChannel);
+            if (PRIMARY_CHANNEL_ID.equals(PRIMARY_WATER_CHANNEL_ID)) {
+                mWaterNotifyManager.createNotificationChannel(notificationChannel);
+            } else {
+                mFoodNotifyManager.createNotificationChannel(notificationChannel);
+            }
         }
     }
-
-
 
     private NotificationCompat.Builder getFoodNotificationBuilder(){
         Intent notificationIntent = new Intent(this, MainActivity.class);
