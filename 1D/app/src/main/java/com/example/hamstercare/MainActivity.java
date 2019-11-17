@@ -96,7 +96,6 @@ public class MainActivity extends AppCompatActivity {
                     //for UI, let user see the food level status
                     foodLevel.setText("Current food level: Sufficient");
                 }
-                Log.i("jinghan", "lowFoodValue is: " + lowFoodValue);
             }
             @Override
             public void onCancelled(DatabaseError error) {
@@ -115,15 +114,12 @@ public class MainActivity extends AppCompatActivity {
                 if (LowWaterValue.equals("true")){
                     //for UI, let user see the water level status
                     waterLevel.setText("Current water level: Insufficient");
-                    //Log.i ("jinghan", waterLevel.getText().toString());
                     sendNotification(WATER_NOTIFICATION_ID);
                 } else if (LowWaterValue.equals("false")){
                     //cancel notification
                     mWaterNotifyManager.cancel(WATER_NOTIFICATION_ID);
-                    //for UI, let user see the water level status
                     waterLevel.setText("Current water level: Sufficient");
                 }
-                Log.i("jinghan", "LowWaterValue is: " + LowWaterValue);
             }
             @Override
             public void onCancelled(DatabaseError error) {
@@ -243,7 +239,6 @@ public class MainActivity extends AppCompatActivity {
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setDefaults(NotificationCompat.DEFAULT_ALL);
         return notifyBuilder;
-
     }
     private NotificationCompat.Builder getWaterNotificationBuilder(){
         Intent notificationIntent = new Intent(this, MainActivity.class);
@@ -260,7 +255,6 @@ public class MainActivity extends AppCompatActivity {
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setDefaults(NotificationCompat.DEFAULT_ALL);
         return notifyBuilder;
-
     }
 
     private void setNewDateTime(TextView textView, DatabaseReference referenceToSet){
@@ -271,7 +265,4 @@ public class MainActivity extends AppCompatActivity {
         referenceToSet.setValue(prevTopUp);
         textView.setText(prevTopUp);
     }
-
-
-
 }
