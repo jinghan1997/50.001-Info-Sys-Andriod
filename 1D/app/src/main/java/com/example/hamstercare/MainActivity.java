@@ -192,10 +192,12 @@ public class MainActivity extends AppCompatActivity {
     //Create a method stub for the sendNotification() method:
     private void sendNotification(int NOTIFICATION_ID) {
         if (NOTIFICATION_ID == WATER_NOTIFICATION_ID) {
-            NotificationCompat.Builder notifyBuilder = getWaterNotificationBuilder();
+            //NotificationCompat.Builder notifyBuilder = getWaterNotificationBuilder();
+            NotificationCompat.Builder notifyBuilder = getNotificationBuilder(WATER_NOTIFICATION_ID);
             mWaterNotifyManager.notify(NOTIFICATION_ID, notifyBuilder.build());
         } else if (NOTIFICATION_ID == FOOD_NOTIFICATION_ID) {
-            NotificationCompat.Builder notifyBuilder = getFoodNotificationBuilder();
+            //NotificationCompat.Builder notifyBuilder = getFoodNotificationBuilder();
+            NotificationCompat.Builder notifyBuilder = getNotificationBuilder(FOOD_NOTIFICATION_ID);
             mFoodNotifyManager.notify(NOTIFICATION_ID, notifyBuilder.build());
         }
     }
@@ -224,36 +226,31 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private NotificationCompat.Builder getFoodNotificationBuilder(){
+
+    private NotificationCompat.Builder getNotificationBuilder(int NOTIFICATION_ID){
         Intent notificationIntent = new Intent(this, MainActivity.class);
 
         PendingIntent notificationPendingIntent = PendingIntent.getActivity(this,
-                FOOD_NOTIFICATION_ID, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                NOTIFICATION_ID, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        NotificationCompat.Builder notifyBuilder = new NotificationCompat.Builder(this, PRIMARY_FOOD_CHANNEL_ID)
-                .setContentTitle("Food is Low")
-                .setContentText("Food is low, please top up!")
-                .setSmallIcon(R.drawable.ic_android)
+        String primaryChannelId = PRIMARY_FOOD_CHANNEL_ID;
+        String contentTitle =  "Food is Low";
+        String contentText = "Food is low, please top up!";
+
+        if (NOTIFICATION_ID==WATER_NOTIFICATION_ID) {
+            primaryChannelId = PRIMARY_WATER_CHANNEL_ID;
+            contentTitle =  "Water is Low";
+            contentText = "Water is low, please top up!";
+        }
+        NotificationCompat.Builder notifyBuilder = new NotificationCompat.Builder(this, primaryChannelId)
+                .setContentTitle(contentTitle)
+                .setContentText(contentText)
+                .setSmallIcon(R.drawable.ic_pet)
                 .setContentIntent(notificationPendingIntent)
                 .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setDefaults(NotificationCompat.DEFAULT_ALL);
-        return notifyBuilder;
-    }
-    private NotificationCompat.Builder getWaterNotificationBuilder(){
-        Intent notificationIntent = new Intent(this, MainActivity.class);
 
-        PendingIntent notificationPendingIntent = PendingIntent.getActivity(this,
-                WATER_NOTIFICATION_ID, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        NotificationCompat.Builder notifyBuilder = new NotificationCompat.Builder(this, PRIMARY_FOOD_CHANNEL_ID)
-                .setContentTitle("Water is Low")
-                .setContentText("Water is low, please top up!")
-                .setSmallIcon(R.drawable.ic_android)
-                .setContentIntent(notificationPendingIntent)
-                .setAutoCancel(true)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setDefaults(NotificationCompat.DEFAULT_ALL);
         return notifyBuilder;
     }
 
