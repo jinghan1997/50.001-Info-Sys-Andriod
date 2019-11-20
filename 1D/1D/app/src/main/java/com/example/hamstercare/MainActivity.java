@@ -1,5 +1,7 @@
 package com.example.hamstercare;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 
@@ -8,18 +10,28 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -28,15 +40,57 @@ import java.util.TimeZone;
 
 public class MainActivity extends AppCompatActivity {
 
+    // create inner classes for event listeners
+    // we can't use anonymous classes because we need to reference non-final vars
+    private class ImEvtListener implements ValueEventListener {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            String url = dataSnapshot.getValue(String.class);
+
+            FirebaseStorage storage = FirebaseStorage.getInstance();
+            StorageReference httpsRef = storage.getReferenceFromUrl(url);
+
+            final ProgressBar yourHamsterProgBar = findViewById(R.id.yourHamsterProgBar);
+
+            GlideApp.with(MainActivity.this)
+                    .load(httpsRef)
+                    .listener(new RequestListener<Drawable>() {
+                        @Override
+                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                            yourHamsterProgBar.setVisibility(View.GONE);
+                            yourHamsterIm.setVisibility(View.VISIBLE);
+                            Toast.makeText(MainActivity.this, "Failed to load image. Please try again later.", Toast.LENGTH_LONG).show();
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                            yourHamsterProgBar.setVisibility(View.GONE);
+                            yourHamsterIm.setVisibility(View.VISIBLE);
+                            return false;
+                        }
+                    })
+                    .into(yourHamsterIm);
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+            Log.e("mickey1356", "couldn't read database");
+        }
+    }
+
     Button topUpFoodButton;
     Button topUpWaterButton;
     TextView foodLevel;
     TextView waterLevel;
     TextView prevWaterTopUpDateTimeText;
     TextView prevFoodTopUpDateTimeText;
+
+    Button showHamsterBtn;
+    ImageView yourHamsterIm;
     //ImageView hamsterImage;
 
-
+    String imUrl;
 
     //In MainActivity, create a constant for the notification channel ID.
     // Every notification channel must be associated with an ID that is unique within your package.
@@ -67,6 +121,9 @@ public class MainActivity extends AppCompatActivity {
         prevWaterTopUpDateTimeText = findViewById(R.id.prevWaterTopUpDateTime);
         prevFoodTopUpDateTimeText = findViewById(R.id.prevFoodTopUpDateTime);
         //hamsterImage = findViewById(R.id.hamster);
+        // for camera
+        showHamsterBtn = findViewById(R.id.showHamsterBtn);
+        yourHamsterIm = findViewById(R.id.yourHamsterIm);
 
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -77,6 +134,11 @@ public class MainActivity extends AppCompatActivity {
         final DatabaseReference prevFoodTopUpDateTime = database.getReference("prevFoodTopUpDateTime");
         final DatabaseReference prevWaterTopUpDateTime = database.getReference("prevWaterTopUpDateTime");
         //foodLow.setValue("false");
+
+        // initialise yourHamsterIm to last uploaded image
+        final DatabaseReference picUrl = database.getReference("picUrl");
+
+        picUrl.addValueEventListener(new ImEvtListener());
 
 
         // To read the value of foodLow variable in firebase
@@ -183,6 +245,16 @@ public class MainActivity extends AppCompatActivity {
                     topUpWater.setValue("true");
                     setNewDateTime(prevWaterTopUpDateTimeText, prevWaterTopUpDateTime);
                 }
+            }
+        });
+        showHamsterBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FirebaseDatabase db = FirebaseDatabase.getInstance();
+                DatabaseReference dbRef = db.getReference("takePic");
+                dbRef.setValue("true");
+                findViewById(R.id.yourHamsterProgBar).setVisibility(View.VISIBLE);
+                findViewById(R.id.yourHamsterIm).setVisibility(View.GONE);
             }
         });
     }
