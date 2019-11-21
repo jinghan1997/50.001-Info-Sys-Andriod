@@ -1,6 +1,7 @@
 package com.example.norman_lee.myapplication;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -200,6 +201,22 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, SubActivity.class);
             startActivity(intent);
             return true;
+        }
+
+        if (id == R.id.menuOpenApp) {
+            //build the URI
+            Uri.Builder builder = new Uri.Builder();
+            builder.scheme("geo")
+            .opaquePart("0.0")
+            .appendQueryParameter("q", "Changi Airport");
+
+            Uri uriGeoLocation = builder.build();
+
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(uriGeoLocation);
+            if (intent.resolveActivity(getPackageManager()) != null){
+                startActivity(intent);
+            }
         }
 
         return super.onOptionsItemSelected(item);
